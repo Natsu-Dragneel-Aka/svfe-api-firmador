@@ -4,5 +4,6 @@ ARG DEPENDENCY=target/dependency
 
 COPY ${DEPENDENCY}/BOOT-INF/lib /app/lib
 COPY ${DEPENDENCY}/META-INF /app/META-INF
-COPY ${DEPENDENCY}/BOOT-INF/classes /app
-ENTRYPOINT ["java","-cp","app:app/lib/*","sv.mh.fe.Application"]
+COPY ${DEPENDENCY}/BOOT-INF/classes /app/BOOT-INF/classes
+
+ENTRYPOINT ["java", "-cp", "app/BOOT-INF/classes:app/lib/*", "sv.mh.fe.Application"]
