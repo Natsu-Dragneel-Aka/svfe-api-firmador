@@ -1,20 +1,26 @@
+# -------- Build Stage --------
+FROM maven:3.9.6-eclipse-temurin-8 AS builder
+WORKDIR /build
+
+# Copy the pom.xml and source code
+COPY pom.xml .
+COPY src ./src
+
+# Package the app (creates target/svfe-api-firmador-0.1.1.jar)
+RUN mvn -B -DskipTests clean package
+
+# -------- Runtime Stage --------
 FROM openjdk:8-jdk-alpine
 WORKDIR /app
-VOLUME /tmp
 
-# Copy the built JAR
-COPY target/svfe-api-firmador-0.1.1.jar app.jar
-
-# Extract dependencies for layered build
-RUN mkdir -p target/dependency && (cd target/dependency; jar -xf /app/app.jar)
-
-# Copy extracted layers
-COPY target/dependency/BOOT-INF/lib /app/lib
-COPY target/dependency/META-INF /app/META-INF
-COPY target/dependency/BOOT-INF/classes /app
+# Copy the built JAR from builder
+COPY --from=builder /build/target/svfe-api-firmador-0.1.1.jar app.jar
 
 # Default uploads dir
 RUN mkdir -p /uploads && chmod 777 /uploads
 
+# Expose API port
 EXPOSE 8113
-ENTRYPOINT ["java","-cp","app:app/lib/*","sv.mh.fe.Application"]
+
+# Run the application
+ENTRYPOINT ["java","-jar","/app/app.jar"]
