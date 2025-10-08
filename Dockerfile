@@ -1,20 +1,34 @@
+# ---- Build stage ----
+FROM maven:3.8.5-openjdk-8 AS build
+WORKDIR /app
+
+# Copy pom.xml and download dependencies (cached layer)
+COPY pom.xml .
+RUN mvn dependency:go-offline -B
+
+# Copy source and build
+COPY src ./src
+RUN mvn clean package -DskipTests
+
+# ---- Runtime stage ----
 FROM openjdk:8-jdk-alpine
 WORKDIR /app
 
-# Create uploads dir
+# Create uploads directory
 RUN mkdir -p /app/uploads
 
-# Copy dependencies
-ARG DEPENDENCY=target/dependency
-COPY ${DEPENDENCY}/BOOT-INF/lib /app/lib
-COPY ${DEPENDENCY}/META-INF /app/META-INF
-COPY ${DEPENDENCY}/BOOT-INF/classes /app
+# Copy JAR from build stage
+COPY --from=build /app/target/*.jar /app/app.jar
 
-# ✅ Copy certificate into uploads folder
+# Copy your certificate into the image
 COPY uploads/06231505241014.crt /app/uploads/06231505241014.crt
 
-# Environment variables
+# Environment variables for your app
 ENV SVFE_ARCHIVO=/app/uploads/06231505241014.crt
 ENV SVFE_PASSWORD="SS3S2O26@Clave!"
 
-ENTRYPOINT ["java","-cp","app:app/lib/*","sv.mh.fe.Application"]
+# Expose the app port
+EXPOSE 8113
+
+# Start your Spring Boot app
+ENTRYPOINT ["java","-jar","/app/app.jar"]
