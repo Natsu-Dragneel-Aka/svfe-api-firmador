@@ -11,7 +11,7 @@ COPY src ./src
 RUN mvn clean package -DskipTests
 
 # ---- Runtime stage ----
-FROM openjdk:8-jdk-alpine
+FROM eclipse-temurin:8-jre-alpine
 WORKDIR /app
 
 # Create uploads directory
