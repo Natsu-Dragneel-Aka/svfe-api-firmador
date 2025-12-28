@@ -25,7 +25,7 @@ COPY uploads/06231505241014.crt /app/uploads/06231505241014.crt
 
 # Environment variables for your app
 ENV SVFE_ARCHIVO=/app/uploads/06231505241014.crt
-ENV SVFE_PASSWORD="SS3S2O26@Clave!"
+ENV SVFE_PASSWORD="Firma#ElSalvador10"
 
 # Expose the app port
 EXPOSE 8113
